@@ -5,6 +5,7 @@ import (
 	"ginrss/utils/errmsg"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 
@@ -50,3 +51,14 @@ func AddUser(c *gin.Context) {
 //查询用户列表
 //编辑用户
 //删除用户
+func DeleteUser(c *gin.Context){
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	code = model.DeleteUser(id)
+
+	c.JSON(
+		http.StatusOK, gin.H{
+			"states":code,
+			"message":errmsg.GetErrMsg(code),
+		})
+}

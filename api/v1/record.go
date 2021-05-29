@@ -53,3 +53,52 @@ func PullRecordSub(c *gin.Context)  {
 	)
 
 }
+
+
+func AddRecord(c *gin.Context){
+	var data model.Record
+	_ = c.ShouldBindJSON(&data)
+
+	//var msg string
+	//var validCode int
+	//msg, validCode = validator.Validate(&data)
+	//if validCode != errmsg.SUCCSE {
+	//	c.JSON(
+	//		http.StatusOK, gin.H{
+	//			"status":  validCode,
+	//			"message": msg,
+	//		},
+	//	)
+	//	c.Abort()
+	//	return
+	//}
+
+	code = model.CheckRecord(data.Rssurl, data.Username)
+	if code == errmsg.SUCCSE {
+		model.CreateRecord(&data)
+	}
+	if code == errmsg.ERROR_RECORD_EXIST {
+		code = errmsg.ERROR_RECORD_EXIST
+	}
+
+	c.JSON(
+		http.StatusOK, gin.H{
+			"status":  code,
+			"message": errmsg.GetErrMsg(code),
+		},
+	)
+}
+
+
+func DeleteRecord(c *gin.Context){
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	//todo 设计传输的信息，最后变成recordID，现在这个id是feedid
+	code = model.DeleteRecord(id)
+
+	c.JSON(
+		http.StatusOK, gin.H{
+			"states":code,
+			"message":errmsg.GetErrMsg(code),
+		})
+}

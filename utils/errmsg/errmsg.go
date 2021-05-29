@@ -16,9 +16,9 @@ const (
 	// code= 2000... Feed模块的错误
 
 	ERROR_Feed_NOT_EXIST = 2001
-	// code= 3000... 分类模块的错误
-	ERROR_CATENAME_USED  = 3001
-	ERROR_CATE_NOT_EXIST = 3002
+	// code= 3000... 订阅模块的错误
+	ERROR_RECORD_EXIST  = 3001
+	ERROR_RECORD_NOT_EXIST = 3002
 )
 
 var codeMsg = map[int]string{
@@ -35,8 +35,8 @@ var codeMsg = map[int]string{
 
 	ERROR_Feed_NOT_EXIST: "Feed不存在",
 
-	ERROR_CATENAME_USED:  "该分类已存在",
-	ERROR_CATE_NOT_EXIST: "该分类不存在",
+	ERROR_RECORD_EXIST:  "该订阅已存在",
+	ERROR_RECORD_NOT_EXIST: "该订阅不存在",
 }
 
 func GetErrMsg(code int) string {

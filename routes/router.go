@@ -20,6 +20,11 @@ func InitRouter()  {
 
 		//get single feed info
 		router.GET("feed/info", v1.GetFeedInfo)
+		router.DELETE("user/:id", v1.DeleteUser)
+
+		//订阅
+		router.POST("subscribe/add", v1.AddRecord)
+		router.DELETE("subscribe/:id", v1.DeleteRecord)
 
 		//:todo 后台管理系统
 		//router.GET("users", v1.GetUsers)

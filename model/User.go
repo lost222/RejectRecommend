@@ -34,3 +34,14 @@ func CreateUser(data *User) int {
 	return errmsg.SUCCSE
 }
 
+//delete user
+
+func DeleteUser(usrid int) int {
+	var usr User
+	err := db.Where("id = ?", usrid).Delete(&usr).Error
+	if err != nil{
+		return errmsg.ERROR
+	}
+	return errmsg.SUCCSE
+}
+

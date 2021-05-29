@@ -12,6 +12,15 @@ type Record struct {
 	Rssurl string `gorm:"type:varchar(256);not null " json:"rssurl"`
 }
 
+func CheckRecord(rssurl string, username string)  (code int){
+	var user Record
+	db.Select("id").Where("username = ? AND rssurl = ?", username, rssurl).First(&user)
+	if user.ID > 0 {
+		return errmsg.ERROR_RECORD_EXIST //1001
+	}
+	return errmsg.SUCCSE
+}
+
 
 func CreateRecord(data *Record) int {
 	//data.Password = ScryptPw(data.Password)
@@ -20,8 +29,18 @@ func CreateRecord(data *Record) int {
 		return errmsg.ERROR // 500
 	}
 	return errmsg.SUCCSE
-	//:todo 钩子函数，每次插入都查一查URL 有没有名字，没有就插入名字
 }
+
+
+func DeleteRecord(id int)int {
+	var re Record
+	err := db.Where("id = ?", id).Delete(&re).Error
+	if err != nil{
+		return errmsg.ERROR
+	}
+	return errmsg.SUCCSE
+}
+
 
 func SearchUserSubRecord(username string, pageSize int, pageNum int) []Record{
 	var ans []Record
