@@ -3,6 +3,7 @@ package model
 import (
 	"ginrss/utils/errmsg"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -45,3 +46,45 @@ func DeleteUser(usrid int) int {
 	return errmsg.SUCCSE
 }
 
+func CheckLogin(username string, password string) (User, int) {
+	var user User
+
+
+	db.Where("username = ?", username).First(&user)
+
+	//todo: 加盐哈希
+	//var PasswordErr error
+	//PasswordErr = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	//if PasswordErr != nil {
+	//	return user, errmsg.ERROR_PASSWORD_WRONG
+	//}
+
+	if user.Password != password{
+		return user, errmsg.ERROR_PASSWORD_WRONG
+	}
+
+	if user.ID == 0 {
+		return user, errmsg.ERROR_USER_NOT_EXIST
+	}
+
+	if user.Role != 1 {
+		return user, errmsg.ERROR_USER_NO_RIGHT
+	}
+	return user, errmsg.SUCCSE
+}
+
+func CheckLoginFront(username string, password string) (User, int) {
+	var user User
+	var PasswordErr error
+
+	db.Where("username = ?", username).First(&user)
+
+	PasswordErr = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if user.ID == 0 {
+		return user, errmsg.ERROR_USER_NOT_EXIST
+	}
+	if PasswordErr != nil {
+		return user, errmsg.ERROR_PASSWORD_WRONG
+	}
+	return user, errmsg.SUCCSE
+}
