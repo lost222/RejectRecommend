@@ -31,11 +31,11 @@ func CreateFeed(data *MyFeed) int {
 	return errmsg.SUCCSE
 }
 
-func GetUserFeeds(username string, pageSize int, pageNum int) []MyFeed{
+func GetUserFeeds(username string, pageSize int, pageNum int) ([]MyFeed, int){
 	var subrec []Record
 	err := db.Limit(pageSize).Offset((pageNum-1)*pageSize).Where("username = ?", username).Find(&subrec).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil
+		return nil , 0
 	}
 
 	var feeds []MyFeed
@@ -48,11 +48,13 @@ func GetUserFeeds(username string, pageSize int, pageNum int) []MyFeed{
 		var feed MyFeed
 		err = db.Table("my_feed").Where("rssurl = ?", rec.Rssurl).First(&feed).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
-			return nil
+			return nil , 0
 		}
+		//feed id 改为record id
+		feed.ID = rec.ID
 		feeds = append(feeds, feed)
 	}
-	return feeds
+	return feeds, len(feeds)
 }
 
 func GetFeedFromId(feedID int) (MyFeed, bool) {

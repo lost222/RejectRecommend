@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"ginrss/middleware"
 	"ginrss/model"
 	"ginrss/rss"
 	"ginrss/utils/errmsg"
@@ -12,9 +13,24 @@ import (
 )
 
 func GetUserFeeds(c *gin.Context) {
+
+
 	pageSize, _ := strconv.Atoi(c.Query("pagesize"))
 	pageNum, _ := strconv.Atoi(c.Query("pagenum"))
-	userName := c.Query("username")
+
+	tokenClaim, _ := c.Get("tokenUser")
+	tClaim := tokenClaim.(*middleware.MyClaims)
+	userName := tClaim.Username
+	if tClaim.Username != userName{
+		code = errmsg.ERROR_USETOKEN_NOT_MATCH
+		c.JSON(
+			http.StatusOK, gin.H{
+				"status":  code,
+				"message": errmsg.GetErrMsg(code),
+			},
+		)
+		return
+	}
 
 	if pageSize == 0{
 		pageSize = -1
@@ -24,13 +40,14 @@ func GetUserFeeds(c *gin.Context) {
 		pageNum = -1
 	}
 
-	data := model.GetUserFeeds(userName, pageSize, pageNum)
+	data , count := model.GetUserFeeds(userName, pageSize, pageNum)
 
 	code = errmsg.SUCCSE
 	c.JSON(
 		http.StatusOK, gin.H{
 			"status":  code,
 			"feeds":  data,
+			"total" : count,
 			"message": errmsg.GetErrMsg(code),
 		},
 	)
@@ -67,5 +84,4 @@ func GetFeedInfo(c *gin.Context)  {
 	)
 
 }
-
 

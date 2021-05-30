@@ -129,7 +129,7 @@ func JwtToken() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("username", claims)
+		c.Set("tokenUser", claims)
 		c.Next()
 	}
 }

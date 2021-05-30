@@ -13,6 +13,7 @@ const (
 	ERROR_TOKEN_WRONG      = 1006
 	ERROR_TOKEN_TYPE_WRONG = 1007
 	ERROR_USER_NO_RIGHT    = 1008
+	ERROR_USETOKEN_NOT_MATCH = 1009
 	// code= 2000... Feed模块的错误
 
 	ERROR_Feed_NOT_EXIST = 2001
@@ -25,6 +26,7 @@ var codeMsg = map[int]string{
 	SUCCSE:                 "OK",
 	ERROR:                  "FAIL",
 	ERROR_USERNAME_USED:    "用户名已存在！",
+	ERROR_USETOKEN_NOT_MATCH : "TOKEN不属于该用户",
 	ERROR_PASSWORD_WRONG:   "密码错误",
 	ERROR_USER_NOT_EXIST:   "用户不存在",
 	ERROR_TOKEN_EXIST:      "TOKEN不存在,请重新登陆",
