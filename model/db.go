@@ -85,6 +85,14 @@ func readData2url(filePath string) []string{
 	return ans
 }
 
+func LimString(maxLen int, s string) string{
+	if len(s) < maxLen{
+		return s
+	}
+	return s[:maxLen]
+}
+
+
 func initTestData() {
 	var rssUrls []string
 
@@ -123,18 +131,21 @@ func initTestData() {
 		"zhihu",
 	}
 	for f:=0;f<M;f++{
-		subindex := f / 10
 		feed, err := rss.FetchURL(fp,rssUrls[f])
 		if err !=nil{
 			fmt.Println(rssUrls[f])
 		}
 		errmsg.CheckErr(err)
 		rssfeedname := feed.Title
+		rssfeedDesc := LimString(256,feed.Description)
+		rssLatesTitle := LimString(256,feed.Items[0].Title)
+
 
 		newFeed := &MyFeed{
 			Feedname: rssfeedname,
 			Rssurl: rssUrls[f],
-			Fav: favs[subindex],
+			FeedDesc: rssfeedDesc,
+			LatesTitle: rssLatesTitle,
 		}
 		CreateFeed(newFeed)
 
@@ -158,6 +169,7 @@ func initTestData() {
 			newRec := &Record{
 				Username: "test" + userstr,
 				Rssurl: rssUrls[k],
+				Fav: favs[k/10],
 			}
 
 			CreateRecord(newRec)

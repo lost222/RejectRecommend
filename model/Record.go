@@ -10,6 +10,8 @@ type Record struct {
 	//Recid int `gorm:"type:int;not null " json:"recid"`
 	Username string `gorm:"type:varchar(20);not null " json:"username"`
 	Rssurl string `gorm:"type:varchar(256);not null " json:"rssurl"`
+	Fav string `gorm:"type:varchar(256);not null " json:"fav"`
+
 }
 
 func CheckRecord(rssurl string, username string)  (code int){

@@ -7,10 +7,12 @@ import (
 
 type MyFeed struct {
 	gorm.Model
-	//Recid int `gorm:"type:int;not null " json:"recid"`
-	Feedname string `gorm:"type:varchar(256);not null " json:"username"`
+
+
 	Rssurl string `gorm:"type:varchar(256);not null " json:"rssurl"`
-	Fav string `gorm:"type:varchar(256);not null " json:"fav"`
+	Feedname string `gorm:"type:varchar(256);not null " json:"username"`
+	FeedDesc string `gorm:"type:varchar(256);not null " json:"feeddesc"`
+	LatesTitle string `gorm:"type:varchar(256);not null " json:"latestitle"`
 }
 
 func CheckFeed(url string) (string, bool) {
@@ -52,6 +54,9 @@ func GetUserFeeds(username string, pageSize int, pageNum int) ([]MyFeed, int){
 		}
 		//feed id 改为record id
 		feed.ID = rec.ID
+
+		//显示feedid的最近修改。 推服务中要相应地修改feed.latestitle
+
 		feeds = append(feeds, feed)
 	}
 	return feeds, len(feeds)
