@@ -10,7 +10,7 @@ type MyFeed struct {
 
 
 	Rssurl string `gorm:"type:varchar(256);not null " json:"rssurl"`
-	Feedname string `gorm:"type:varchar(256);not null " json:"username"`
+	Feedname string `gorm:"type:varchar(256);not null " json:"feedname"`
 	FeedDesc string `gorm:"type:varchar(256);not null " json:"feeddesc"`
 	LatesTitle string `gorm:"type:varchar(256);not null " json:"latestitle"`
 }

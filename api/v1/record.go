@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"fmt"
+	"ginrss/middleware"
 	"ginrss/model"
 	"ginrss/rss"
 	"ginrss/utils/errmsg"
@@ -101,4 +102,31 @@ func DeleteRecord(c *gin.Context){
 			"states":code,
 			"message":errmsg.GetErrMsg(code),
 		})
+}
+
+func GetFavList(c *gin.Context) {
+	favList := model.GetAllFav()
+	c.JSON(
+		http.StatusOK, gin.H{
+			"states":errmsg.SUCCSE,
+			"data" : favList,
+			"message":errmsg.GetErrMsg(code),
+		})
+}
+
+func GetFavFeed(c *gin.Context) {
+	tokenClaim, _ := c.Get("tokenUser")
+	tClaim := tokenClaim.(*middleware.MyClaims)
+	userName := tClaim.Username
+
+	fav := c.Query("fav")
+
+	feedList := model.GetFavFeed(userName, fav)
+	c.JSON(
+		http.StatusOK, gin.H{
+			"states":errmsg.SUCCSE,
+			"data" : feedList,
+			"message":errmsg.GetErrMsg(code),
+		})
+
 }

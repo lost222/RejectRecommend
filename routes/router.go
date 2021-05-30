@@ -29,8 +29,10 @@ func InitRouter()  {
 		//// 订阅模块的路由接口
 
 		auth.GET("feeds",v1.GetUserFeeds)
+		auth.GET("favs",v1.GetFavList)
 		//auth.GET("feeds/info/:id", v1.GetArtInfo)
-		auth.GET("feed/info/:id", v1.GetFeedInfo)
+		auth.GET("feed/info/", v1.GetFeedInfo)
+		auth.GET("feed/list/", v1.GetFavFeed)
 		//auth.GET("feeds", v1.GetArt)
 		auth.POST("subscribe/add", v1.AddRecord)
 		auth.DELETE("subscribe/:id", v1.DeleteRecord)

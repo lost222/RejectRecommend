@@ -55,3 +55,40 @@ func SearchUserSubRecord(username string, pageSize int, pageNum int) []Record{
 
 	return ans
 }
+
+func GetAllFav() []string {
+	var ans []Record
+	err := db.Table("record").Find(&ans).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil
+	}
+
+	temp := map[string]struct{}{}
+	var result []string
+	for _, item := range ans {
+		a := item.Fav
+		if _, ok := temp[a]; !ok { //如果字典中找不到元素，ok=false，!ok为true，就往切片中append元素。
+			temp[a] = struct{}{}
+			result = append(result, a)
+		}
+	}
+	return result
+
+}
+
+func GetFavFeed(username string, Favname string) []MyFeed {
+	var ans []Record
+	err := db.Table("record").Where("username = ? AND fav = ?", username, Favname).Find(&ans).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil
+	}
+
+	var result []MyFeed
+	for _, a := range ans{
+		var f MyFeed
+		rssurl := a.Rssurl
+		db.Table("my_feed").Where("rssurl = ?", rssurl).First(&f)
+		result = append(result, f)
+	}
+	return result
+}
