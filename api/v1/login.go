@@ -3,6 +3,7 @@ package v1
 import (
 	"ginrss/middleware"
 	"ginrss/model"
+	Redismoon "ginrss/redismoon"
 	"ginrss/utils/errmsg"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,8 @@ func Login(c *gin.Context) {
 	formData, code = model.CheckLogin(formData.Username, formData.Password)
 
 	if code == errmsg.SUCCSE {
+		//更新活跃用户列表
+		Redismoon.SetActUser(formData.Username)
 		setToken(c, formData)
 	}else {
 		c.JSON(http.StatusOK, gin.H{
@@ -44,6 +47,7 @@ func LoginFront(c *gin.Context) {
 
 	if code == errmsg.SUCCSE {
 		setToken(c, formData)
+		Redismoon.SetActUser(formData.Username)
 	}else {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  code,
@@ -70,11 +74,11 @@ func setToken(c *gin.Context, user model.User) {
 	}
 
 	//本地
-	//j := middleware.NewJWT()
-	//jwt token, err := j.CreateToken(claims)
+	j := middleware.NewJWT()
+	token, err := j.CreateToken(claims)
 
 	//RPC jwt
-	token , err := middleware.GrpcTokenGenerate(claims)
+	//token , err := middleware.GrpcTokenGenerate(claims)
 
 
 	if err != nil {

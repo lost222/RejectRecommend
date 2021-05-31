@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"ginrss/middleware"
 	"ginrss/model"
+	Redismoon "ginrss/redismoon"
 	"ginrss/rss"
 	"ginrss/utils/errmsg"
 	"github.com/gin-gonic/gin"
@@ -41,6 +42,8 @@ func GetUserFeeds(c *gin.Context) {
 	}
 
 	data , count := model.GetUserFeeds(userName, pageSize, pageNum)
+	//更新活跃用户
+	Redismoon.SetActUser(userName)
 
 	code = errmsg.SUCCSE
 	c.JSON(
@@ -53,6 +56,9 @@ func GetUserFeeds(c *gin.Context) {
 	)
 }
 
+
+
+
 func GetFeedInfo(c *gin.Context)  {
 	//get feedID from query
 	feedID, _ := strconv.Atoi(c.Query("feedid"))
@@ -64,16 +70,30 @@ func GetFeedInfo(c *gin.Context)  {
 	}
 	//一大堆redis操作，假设都miss
 
-
+	//尝试缓存中是否存在
+	var feed *gofeed.Feed
+	cc := Redismoon.Cache{
+		Rssurl: feeddata.Rssurl,
+	}
+	ok, err := cc.GetFromRedis()
+	if ok {
+		feed = &cc.Feed
+		fmt.Println("cache hit")
+	}else {
+		//cache miss
+		fmt.Println("cache miss")
+		fp := gofeed.NewParser()
+		feed, err = rss.FetchURL(fp, feeddata.Rssurl)
+		errmsg.CheckErr(err)
+		fmt.Println(feed)
+		cc.Feed = *feed
+		//写入cache
+		cc.SaveInRedis()
+	}
 
 	//最终将获得的XML解码为json传输
-	fp := gofeed.NewParser()
-	feed, err := rss.FetchURL(fp, feeddata.Rssurl)
-	//直接序列化解决深拷贝问题
-	//buffer, _ := json.Marshal(feed)
-	//feeds = append(feeds, buffer)
-	errmsg.CheckErr(err)
-	fmt.Println(feed)
+
+	//todo 修改Feed表中LatesTitle项目
 
 	c.JSON(
 		http.StatusOK, gin.H{

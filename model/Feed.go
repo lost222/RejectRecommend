@@ -53,7 +53,7 @@ func GetUserFeeds(username string, pageSize int, pageNum int) ([]MyFeed, int){
 			return nil , 0
 		}
 		//feed id 改为record id
-		feed.ID = rec.ID
+		//feed.ID = rec.ID
 
 		//显示feedid的最近修改。 推服务中要相应地修改feed.latestitle
 

@@ -108,11 +108,11 @@ func JwtToken() gin.HandlerFunc {
 
 		// 解析token
 		// 本地
-		//j := NewJWT()
-		//claims, err := j.ParserToken(checkToken[1])
+		j := NewJWT()
+		claims, err := j.ParserToken(checkToken[1])
 
 		//grpc jwt
-		claims, err := GrpcTokenParser(checkToken[1])
+		//claims, err := GrpcTokenParser(checkToken[1])
 
 
 
