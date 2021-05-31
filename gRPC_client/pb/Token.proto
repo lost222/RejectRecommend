@@ -1,0 +1,33 @@
+syntax = "proto3";
+option go_package = "pb;pb_github_com_golang_protobuf_TokenService";
+package pb;
+
+service TokenService{
+  rpc CreateToken(UserClaim) returns (Token) {};
+  rpc ParserToken(Token) returns (UserClaim) {};
+}
+
+//type StandardClaims struct {
+//    Audience  string `json:"aud,omitempty"`
+//    ExpiresAt int64  `json:"exp,omitempty"`
+//    Id        string `json:"jti,omitempty"`
+//    IssuedAt  int64  `json:"iat,omitempty"`
+//    Issuer    string `json:"iss,omitempty"`
+//    NotBefore int64  `json:"nbf,omitempty"`
+//    Subject   string `json:"sub,omitempty"`
+//}
+
+message UserClaim {
+  string name = 1;
+  string Audience = 2;
+  int64 ExpiresAt = 3;
+  string Id = 4;
+  int64 IssuedAt = 5;
+  string Issuer = 6;
+  int64 NotBefore = 7;
+  string Subject = 8;
+}
+
+message Token {
+  string Token = 1;
+}

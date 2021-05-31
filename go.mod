@@ -11,5 +11,7 @@ require (
 	github.com/jinzhu/now v1.1.2 // indirect
 	github.com/mmcdole/gofeed v1.1.3
 	github.com/smartystreets/goconvey v1.6.4 // indirect
+	google.golang.org/grpc v1.38.0
+	google.golang.org/protobuf v1.26.0
 	gopkg.in/ini.v1 v1.62.0
 )
