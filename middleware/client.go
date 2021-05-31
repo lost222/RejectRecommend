@@ -1,10 +1,9 @@
-package gRPC_client
+package middleware
 
 import (
 	"context"
 	"fmt"
-	pb "ginrss/gRPC_Client/pb"
-	"ginrss/middleware"
+	pb "ginrss/pb"
 	"github.com/dgrijalva/jwt-go"
 	"google.golang.org/grpc"
 	"time"
@@ -12,7 +11,7 @@ import (
 
 var serviceAddress = "127.0.0.1:1234"
 
-func GrpcTokenGenerate(claim middleware.MyClaims) (string, error)  {
+func GrpcTokenGenerate(claim MyClaims) (string, error)  {
 	conn, err := grpc.Dial(serviceAddress, grpc.WithInsecure())
 	if err != nil {
 		panic("connect error")
@@ -36,7 +35,7 @@ func GrpcTokenGenerate(claim middleware.MyClaims) (string, error)  {
 }
 
 
-func GrpcTokenParser(tokenString string) (*middleware.MyClaims, error) {
+func GrpcTokenParser(tokenString string) (*MyClaims, error) {
 	conn, err := grpc.Dial(serviceAddress, grpc.WithInsecure())
 	if err != nil {
 		panic("connect error")
@@ -49,9 +48,9 @@ func GrpcTokenParser(tokenString string) (*middleware.MyClaims, error) {
 	UserClaim, err := bookClient.ParserToken(context.Background(), req)
 
 	if err != nil {
-		return &middleware.MyClaims{}, err
+		return &MyClaims{}, err
 	}
-	ans := middleware.MyClaims{
+	ans := MyClaims{
 		Username: UserClaim.Name,
 		StandardClaims: jwt.StandardClaims{
 			Audience:  UserClaim.Audience,
@@ -69,7 +68,7 @@ func GrpcTokenParser(tokenString string) (*middleware.MyClaims, error) {
 
 //一个claim变成token又解码回来，所带数据应该前后一致
 func testGrpc() bool {
-	var claim = middleware.MyClaims{
+	var claim = MyClaims{
 		Username: "test6",
 		StandardClaims: jwt.StandardClaims{
 			NotBefore: time.Now().Unix() - 100,
@@ -87,7 +86,7 @@ func testGrpc() bool {
 	fmt.Println("token:")
 	fmt.Println(tokenStr)
 
-	var ansClaim *middleware.MyClaims
+	var ansClaim *MyClaims
 
 	ansClaim , err = GrpcTokenParser(tokenStr)
 	if err != nil{

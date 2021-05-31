@@ -106,9 +106,16 @@ func JwtToken() gin.HandlerFunc {
 			return
 		}
 
-		j := NewJWT()
 		// 解析token
-		claims, err := j.ParserToken(checkToken[1])
+		// 本地
+		//j := NewJWT()
+		//claims, err := j.ParserToken(checkToken[1])
+
+		//grpc jwt
+		claims, err := GrpcTokenParser(checkToken[1])
+
+
+
 		if err != nil {
 			if err == TokenExpired {
 				c.JSON(http.StatusOK, gin.H{

@@ -59,7 +59,7 @@ func LoginFront(c *gin.Context) {
 
 // token生成函数
 func setToken(c *gin.Context, user model.User) {
-	j := middleware.NewJWT()
+
 	claims := middleware.MyClaims{
 		Username: user.Username,
 		StandardClaims: jwt.StandardClaims{
@@ -69,7 +69,13 @@ func setToken(c *gin.Context, user model.User) {
 		},
 	}
 
-	token, err := j.CreateToken(claims)
+	//本地
+	//j := middleware.NewJWT()
+	//jwt token, err := j.CreateToken(claims)
+
+	//RPC jwt
+	token , err := middleware.GrpcTokenGenerate(claims)
+
 
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
