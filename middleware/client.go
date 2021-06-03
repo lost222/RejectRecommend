@@ -12,19 +12,23 @@ import (
 var serviceAddress = "127.0.0.1:1234"
 
 func GrpcTokenGenerate(claim MyClaims) (string, error)  {
+	//连接RPC服务器
 	conn, err := grpc.Dial(serviceAddress, grpc.WithInsecure())
 	if err != nil {
 		panic("connect error")
 	}
 	defer conn.Close()
+	//新建服务客户端
 	bookClient := pb.NewTokenServiceClient(conn)
 
+	//拼接服务message
 	req := &pb.UserClaim{
 		Name: claim.Username,
 		NotBefore : claim.NotBefore,
 		ExpiresAt: claim.ExpiresAt,
 		Issuer: claim.Issuer,
 	}
+	//发送RPC调用，调用同步返回。
 	reply, err := bookClient.CreateToken(context.Background(), req)
 
 	if err != nil{

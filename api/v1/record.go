@@ -73,6 +73,13 @@ func AddRecord(c *gin.Context){
 	//	c.Abort()
 	//	return
 	//}
+	tokenClaim, _ := c.Get("tokenUser")
+	tClaim := tokenClaim.(*middleware.MyClaims)
+	userName := tClaim.Username
+	data.Username = userName
+
+	fmt.Println(data.Username)
+	fmt.Println(data.Rssurl)
 
 	code = model.CheckRecord(data.Rssurl, data.Username)
 	if code == errmsg.SUCCSE {
@@ -92,10 +99,25 @@ func AddRecord(c *gin.Context){
 
 
 func DeleteRecord(c *gin.Context){
-	id, _ := strconv.Atoi(c.Param("id"))
+	tokenClaim, _ := c.Get("tokenUser")
+	tClaim := tokenClaim.(*middleware.MyClaims)
+	userName := tClaim.Username
 
-	//todo 设计传输的信息，最后变成recordID，现在这个id是feedid
-	code = model.DeleteRecord(id)
+	//name := context.PostForm("name")
+	var data model.Record
+	_ = c.ShouldBindJSON(&data)
+	fmt.Println(data.Username)
+	fmt.Println(data.Rssurl)
+
+
+	//查询该用户的该订阅
+	recordID, ok := model.SearchRecord(data.Rssurl, userName)
+	if !ok {
+		//记录不存在，直接返回删除成功
+		code = errmsg.SUCCSE
+	}else {
+		code = model.DeleteRecord(recordID)
+	}
 
 	c.JSON(
 		http.StatusOK, gin.H{

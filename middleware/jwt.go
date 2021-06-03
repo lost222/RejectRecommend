@@ -2,11 +2,14 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
+	Redismoon "ginrss/redismoon"
 	"ginrss/utils"
 	"ginrss/utils/errmsg"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -73,6 +76,7 @@ func (j *JWT) ParserToken(tokenString string) (*MyClaims, error) {
 // JwtToken jwt中间件
 func JwtToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		fmt.Println("JwtToken")
 		var code int
 		tokenHeader := c.Request.Header.Get("Authorization")
 		if tokenHeader == "" {
@@ -110,6 +114,7 @@ func JwtToken() gin.HandlerFunc {
 		// 本地
 		j := NewJWT()
 		claims, err := j.ParserToken(checkToken[1])
+		//claims.Audience
 
 		//grpc jwt
 		//claims, err := GrpcTokenParser(checkToken[1])
@@ -135,6 +140,101 @@ func JwtToken() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		//认证成功，视作一次访问，更新活跃用户列表
+		Redismoon.SetActUser(claims.Username)
+
+		c.Set("tokenUser", claims)
+		c.Next()
+	}
+}
+
+
+
+func JwtTokenBackend() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		fmt.Println("JwtTokenBackEnd")
+		var code int
+		tokenHeader := c.Request.Header.Get("Authorization")
+		if tokenHeader == "" {
+			code = errmsg.ERROR_TOKEN_EXIST
+			c.JSON(http.StatusOK, gin.H{
+				"status":  code,
+				"message": errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
+		}
+
+		checkToken := strings.Split(tokenHeader, " ")
+		if len(checkToken) == 0 {
+			code = errmsg.ERROR_TOKEN_TYPE_WRONG
+			c.JSON(http.StatusOK, gin.H{
+				"status":  code,
+				"message": errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
+		}
+
+		if len(checkToken) != 2 || checkToken[0] != "Bearer" {
+			code = errmsg.ERROR_TOKEN_TYPE_WRONG
+			c.JSON(http.StatusOK, gin.H{
+				"status":  code,
+				"message": errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
+		}
+
+		// 解析token
+		// 本地
+		j := NewJWT()
+		claims, err := j.ParserToken(checkToken[1])
+		//claims.Audience
+
+		//grpc jwt
+		//claims, err := GrpcTokenParser(checkToken[1])
+
+		if err != nil {
+			if err == TokenExpired {
+				c.JSON(http.StatusOK, gin.H{
+					"status":  errmsg.ERROR,
+					"message": "token授权已过期,请重新登录",
+					"data":    nil,
+				})
+				c.Abort()
+				return
+			}
+
+			// 其他错误
+			c.JSON(http.StatusOK, gin.H{
+				"status":  errmsg.ERROR,
+				"message": err.Error(),
+				"data":    nil,
+			})
+			c.Abort()
+			return
+		}
+
+		//鉴定权限
+		var role int
+		var errc error
+		role, errc = strconv.Atoi(claims.Subject)
+		fmt.Println(claims.Username, role)
+		if errc != nil || role != 1{
+			//权限不足
+			c.JSON(http.StatusOK, gin.H{
+				"status":  errmsg.ERROR_USER_NO_RIGHT,
+				"message": errmsg.GetErrMsg(errmsg.ERROR_USER_NO_RIGHT),
+				"data":    nil,
+			})
+			c.Abort()
+			return
+		}
+
+		//认证成功，视作一次访问，更新活跃用户列表
+		Redismoon.SetActUser(claims.Username)
 
 		c.Set("tokenUser", claims)
 		c.Next()

@@ -24,6 +24,15 @@ func CheckUser(name string) (code int) {
 	return errmsg.SUCCSE
 }
 
+func SearchUserId(name string) uint{
+	var user User
+	db.Select("id").Where("username = ?", name).First(&user)
+	if user.ID > 0 {
+		return user.ID
+	}
+	return 0
+}
+
 //add user
 func CreateUser(data *User) int {
 	//data.Password = ScryptPw(data.Password)
@@ -94,4 +103,14 @@ func CheckLoginFront(username string, password string) (User, int) {
 	}
 
 	return user, errmsg.SUCCSE
+}
+
+func GetAllUsers() []User {
+	var Users []User
+	//分页先查询record
+	err := db.Find(&Users).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil
+	}
+	return Users
 }

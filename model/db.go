@@ -116,7 +116,7 @@ func initTestData() {
 			Username: "test"+userstr,
 			Usermail: userstr+"@mail.qq.com",
 			Password: "password"+userstr,
-			Role: 0,
+			Role: 2,
 		}
 		CreateUser(newmember)
 	}

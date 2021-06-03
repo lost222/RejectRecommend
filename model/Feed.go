@@ -33,8 +33,15 @@ func CreateFeed(data *MyFeed) int {
 	return errmsg.SUCCSE
 }
 
+
+func UpdateLastTitle(feedId int, title string) {
+	db.Where("ID = ?", feedId).Update("latestitle", title)
+}
+
+
 func GetUserFeeds(username string, pageSize int, pageNum int) ([]MyFeed, int){
 	var subrec []Record
+	//分页先查询record
 	err := db.Limit(pageSize).Offset((pageNum-1)*pageSize).Where("username = ?", username).Find(&subrec).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil , 0
@@ -42,20 +49,16 @@ func GetUserFeeds(username string, pageSize int, pageNum int) ([]MyFeed, int){
 
 	var feeds []MyFeed
 
-	//db.Model(&MyFeed{}).Select("my_feed.feedname, my_feed.rssurl, my_feed.fav").Joins("left join record on my_feed.rssurl = record.rssurl").Where("record.username = ?", username).Scan(feeds)
-	// SELECT users.name, emails.email FROM `users` left join emails on emails.user_id = users.id
+
 
 	//var feeds []MyFeed
+	//然后根据record查询Feed
 	for _, rec := range subrec{
 		var feed MyFeed
 		err = db.Table("my_feed").Where("rssurl = ?", rec.Rssurl).First(&feed).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
 			return nil , 0
 		}
-		//feed id 改为record id
-		//feed.ID = rec.ID
-
-		//显示feedid的最近修改。 推服务中要相应地修改feed.latestitle
 
 		feeds = append(feeds, feed)
 	}
@@ -69,5 +72,4 @@ func GetFeedFromId(feedID int) (MyFeed, bool) {
 		return feed,true
 	}
 	return feed, false
-
 }

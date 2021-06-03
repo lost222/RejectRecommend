@@ -24,6 +24,18 @@ func CheckRecord(rssurl string, username string)  (code int){
 }
 
 
+func SearchRecord(rssurl string, username string)  (uint, bool){
+	var re Record
+	db.Select("id").Where("username = ? AND rssurl = ?", username, rssurl).First(&re)
+	if re.ID > 0 {
+		return  re.ID, true
+	}
+
+	return 0, false
+}
+
+
+
 func CreateRecord(data *Record) int {
 	//data.Password = ScryptPw(data.Password)
 	err := db.Create(&data).Error
@@ -34,7 +46,7 @@ func CreateRecord(data *Record) int {
 }
 
 
-func DeleteRecord(id int)int {
+func DeleteRecord(id uint)int {
 	var re Record
 	err := db.Where("id = ?", id).Delete(&re).Error
 	if err != nil{

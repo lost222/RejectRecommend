@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -70,6 +71,7 @@ func setToken(c *gin.Context, user model.User) {
 			NotBefore: time.Now().Unix() - 100,
 			ExpiresAt: time.Now().Unix() + 7200,
 			Issuer:    "GinRss",
+			Subject: strconv.Itoa(user.Role),
 		},
 	}
 
@@ -98,3 +100,5 @@ func setToken(c *gin.Context, user model.User) {
 	})
 	return
 }
+
+
