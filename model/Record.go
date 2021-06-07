@@ -34,6 +34,21 @@ func SearchRecord(rssurl string, username string)  (uint, bool){
 	return 0, false
 }
 
+func SearchRecordId(feedid int, username string)  (uint, bool){
+	feed, ok := GetFeedFromId(feedid)
+	if !ok {
+		return 0, false
+	}
+
+	var re Record
+	db.Select("id").Where("username = ? AND rssurl = ?", username, feed.Rssurl).First(&re)
+	if re.ID > 0 {
+		return  re.ID, true
+	}
+
+	return 0, false
+}
+
 
 
 func CreateRecord(data *Record) int {

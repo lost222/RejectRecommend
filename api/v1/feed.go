@@ -86,7 +86,7 @@ func GetFeedInfo(c *gin.Context)  {
 		//通过网络获得FEED
 		feed, err = rss.FetchURL(fp, feeddata.Rssurl)
 		errmsg.CheckErr(err)
-		fmt.Println(feed)
+		//fmt.Println(feed)
 		cc.Feed = *feed
 		//写入cache
 		cc.SaveInRedis()

@@ -121,17 +121,41 @@ func DeleteRecord(c *gin.Context){
 
 	c.JSON(
 		http.StatusOK, gin.H{
-			"states":code,
+			"status":code,
 			"message":errmsg.GetErrMsg(code),
 		})
 }
+
+func DeleteRecordById(c *gin.Context)  {
+	feedid, _ := strconv.Atoi(c.Param("id"))
+	tokenClaim, _ := c.Get("tokenUser")
+	tClaim := tokenClaim.(*middleware.MyClaims)
+	userName := tClaim.Username
+
+	//查询用户订阅
+	recordId , ok := model.SearchRecordId(feedid, userName)
+	if !ok {
+		//记录不存在，直接返回删除成功
+		code = errmsg.SUCCSE
+	}else {
+		code = model.DeleteRecord(recordId)
+	}
+
+	c.JSON(
+		http.StatusOK, gin.H{
+			"status":code,
+			"message":errmsg.GetErrMsg(code),
+		})
+}
+
+
 
 func GetFavList(c *gin.Context) {
 	favList := model.GetAllFav()
 	c.JSON(
 		http.StatusOK, gin.H{
-			"states":errmsg.SUCCSE,
-			"data" : favList,
+			"status":errmsg.SUCCSE,
+			"favs" : favList,
 			"message":errmsg.GetErrMsg(code),
 		})
 }
@@ -146,7 +170,7 @@ func GetFavFeed(c *gin.Context) {
 	feedList := model.GetFavFeed(userName, fav)
 	c.JSON(
 		http.StatusOK, gin.H{
-			"states":errmsg.SUCCSE,
+			"status":errmsg.SUCCSE,
 			"data" : feedList,
 			"message":errmsg.GetErrMsg(code),
 		})

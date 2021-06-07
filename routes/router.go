@@ -9,7 +9,7 @@ import (
 
 func InitRouter()  {
 	gin.SetMode(utils.AppMode)
-	r := gin.Default()
+	r := gin.New()
 	r.Use(middleware.Cors())
 
 	//普通用户
@@ -20,18 +20,19 @@ func InitRouter()  {
 		auth.GET("feeds",v1.GetUserFeeds)
 		auth.GET("favs",v1.GetFavList)
 
-		auth.GET("feed/info/", v1.GetFeedInfo)
+		//auth.GET("feed/info/", v1.GetFeedInfo)
 		auth.GET("feed/list/", v1.GetFavFeed)
 
 		auth.POST("subscribe/add", v1.AddRecord)
 		auth.POST("subscribe/del", v1.DeleteRecord)
+		auth.DELETE("subscribe/:id",v1.DeleteRecordById)
+
 
 	}
 
 	superauth := r.Group("api/v1")
 	superauth.Use(middleware.JwtTokenBackend())
 	{
-		//todo handle函数实现
 		superauth.GET("users", v1.GetAllUsers)
 		superauth.POST("user/add",v1.AddUser)
 		superauth.DELETE("user/:id",v1.DeleteUser)
@@ -45,7 +46,7 @@ func InitRouter()  {
 
 		router.POST("login", v1.LoginFront)
 		router.POST("backend/login", v1.Login)
-
+		router.GET("feed/info/", v1.GetFeedInfo)
 
 	}
 

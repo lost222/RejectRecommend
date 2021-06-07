@@ -69,7 +69,7 @@ func DeleteUser(c *gin.Context){
 	}
 	c.JSON(
 		http.StatusOK, gin.H{
-			"states":code,
+			"status":code,
 			"message":errmsg.GetErrMsg(code),
 		})
 }
@@ -78,7 +78,7 @@ func GetActiveUsers(c *gin.Context)  {
 	activeUsers := Redismoon.Getactiveusr()
 	c.JSON(
 		http.StatusOK, gin.H{
-			"states":code,
+			"status":code,
 			"activeUsers":activeUsers,
 			"message":errmsg.GetErrMsg(code),
 		})
