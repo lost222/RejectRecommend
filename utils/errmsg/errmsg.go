@@ -20,6 +20,7 @@ const (
 	// code= 3000... 订阅模块的错误
 	ERROR_RECORD_EXIST  = 3001
 	ERROR_RECORD_NOT_EXIST = 3002
+	ERROR_RSS_URL_WRONG = 4001
 )
 
 var codeMsg = map[int]string{
@@ -39,6 +40,7 @@ var codeMsg = map[int]string{
 
 	ERROR_RECORD_EXIST:  "该订阅已存在",
 	ERROR_RECORD_NOT_EXIST: "该订阅不存在",
+	ERROR_RSS_URL_WRONG : "RSS URL错误",
 }
 
 func GetErrMsg(code int) string {

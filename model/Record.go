@@ -8,8 +8,8 @@ import (
 type Record struct {
 	gorm.Model
 	//Recid int `gorm:"type:int;not null " json:"recid"`
-	Username string `gorm:"type:varchar(20);not null " json:"username"`
-	Rssurl string `gorm:"type:varchar(256);not null " json:"rssurl"`
+	Username string `gorm:"index;type:varchar(20);not null " json:"username"`
+	Rssurl string `gorm:"index;type:varchar(256);not null " json:"rssurl"`
 	Fav string `gorm:"type:varchar(256);not null " json:"fav"`
 
 }
@@ -83,9 +83,10 @@ func SearchUserSubRecord(username string, pageSize int, pageNum int) []Record{
 	return ans
 }
 
-func GetAllFav() []string {
+func GetAllFav(username string) []string {
 	var ans []Record
-	err := db.Table("record").Find(&ans).Error
+
+	err := db.Table("record").Where("username = ?", username).Find(&ans).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil
 	}

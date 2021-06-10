@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"ginrss/Cro"
 	"ginrss/middleware"
 	"ginrss/model"
 	Redismoon "ginrss/redismoon"
@@ -19,6 +20,8 @@ func Login(c *gin.Context) {
 	var token string
 	var code int
 
+	//加盐哈希
+	formData.Password = Cro.SaltCro(formData.Password)
 	formData, code = model.CheckLogin(formData.Username, formData.Password)
 
 	if code == errmsg.SUCCSE {
@@ -44,6 +47,7 @@ func LoginFront(c *gin.Context) {
 	var token string
 	var code int
 
+	formData.Password = Cro.SaltCro(formData.Password)
 	formData, code = model.CheckLoginFront(formData.Username, formData.Password)
 
 	if code == errmsg.SUCCSE {

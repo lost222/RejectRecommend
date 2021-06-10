@@ -22,6 +22,7 @@ func InitRouter()  {
 
 		//auth.GET("feed/info/", v1.GetFeedInfo)
 		auth.GET("feed/list/", v1.GetFavFeed)
+		auth.GET("feed/search/", v1.SearFeedByname)
 
 		auth.POST("subscribe/add", v1.AddRecord)
 		auth.POST("subscribe/del", v1.DeleteRecord)
@@ -37,6 +38,9 @@ func InitRouter()  {
 		superauth.POST("user/add",v1.AddUser)
 		superauth.DELETE("user/:id",v1.DeleteUser)
 		superauth.GET("user/active",v1.GetActiveUsers)
+		superauth.GET("user/:id",v1.GetUserInfo)
+		superauth.PUT("user/:id",v1.EditUserInfo)
+		superauth.PUT("changepw/:id",v1.ChangePw)
 		superauth.GET("pushservice",v1.AddUser)
 	}
 

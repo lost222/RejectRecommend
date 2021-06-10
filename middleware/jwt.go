@@ -111,13 +111,13 @@ func JwtToken() gin.HandlerFunc {
 		}
 
 		// 解析token
-		// 本地
-		j := NewJWT()
-		claims, err := j.ParserToken(checkToken[1])
+		//本地
+		//j := NewJWT()
+		//claims, err := j.ParserToken(checkToken[1])
 		//claims.Audience
 
 		//grpc jwt
-		//claims, err := GrpcTokenParser(checkToken[1])
+		claims, err := GrpcTokenParser(checkToken[1])
 
 
 
@@ -189,12 +189,12 @@ func JwtTokenBackend() gin.HandlerFunc {
 
 		// 解析token
 		// 本地
-		j := NewJWT()
-		claims, err := j.ParserToken(checkToken[1])
+		//j := NewJWT()
+		//claims, err := j.ParserToken(checkToken[1])
 		//claims.Audience
 
 		//grpc jwt
-		//claims, err := GrpcTokenParser(checkToken[1])
+		claims, err := GrpcTokenParser(checkToken[1])
 
 		if err != nil {
 			if err == TokenExpired {

@@ -60,34 +60,48 @@ func AddRecord(c *gin.Context){
 	var data model.Record
 	_ = c.ShouldBindJSON(&data)
 
-	//var msg string
-	//var validCode int
-	//msg, validCode = validator.Validate(&data)
-	//if validCode != errmsg.SUCCSE {
-	//	c.JSON(
-	//		http.StatusOK, gin.H{
-	//			"status":  validCode,
-	//			"message": msg,
-	//		},
-	//	)
-	//	c.Abort()
-	//	return
-	//}
 	tokenClaim, _ := c.Get("tokenUser")
 	tClaim := tokenClaim.(*middleware.MyClaims)
 	userName := tClaim.Username
 	data.Username = userName
+	//标题
+	//收藏夹
 
-	fmt.Println(data.Username)
-	fmt.Println(data.Rssurl)
+	//根据record添加Feed
+	fp := gofeed.NewParser()
+	feed, err := rss.FetchURL(fp, data.Rssurl)
+	if err != nil{
+		code = errmsg.ERROR_RSS_URL_WRONG
+		c.JSON(
+			http.StatusOK, gin.H{
+				"status":  code,
+				"message": errmsg.GetErrMsg(code),
+			},
+		)
+		return
+	}
 
-	code = model.CheckRecord(data.Rssurl, data.Username)
+	if _, ok := model.CheckFeed(data.Rssurl); !ok {
+		//feed不存在
+		f := new(model.MyFeed)
+		f.Feedname = feed.Title
+		f.Rssurl = data.Rssurl
+		f.FeedDesc = feed.Description
+		f.LatesTitle = feed.Items[0].Title
+		//创造feed
+		model.CreateFeed(f)
+	}
+
+	//record是不是已经存在
+	code = model.CheckRecord(data.Rssurl, userName)
 	if code == errmsg.SUCCSE {
 		model.CreateRecord(&data)
 	}
 	if code == errmsg.ERROR_RECORD_EXIST {
 		code = errmsg.ERROR_RECORD_EXIST
 	}
+
+
 
 	c.JSON(
 		http.StatusOK, gin.H{
@@ -151,7 +165,11 @@ func DeleteRecordById(c *gin.Context)  {
 
 
 func GetFavList(c *gin.Context) {
-	favList := model.GetAllFav()
+	tokenClaim, _ := c.Get("tokenUser")
+	tClaim := tokenClaim.(*middleware.MyClaims)
+	userName := tClaim.Username
+
+	favList := model.GetAllFav(userName)
 	c.JSON(
 		http.StatusOK, gin.H{
 			"status":errmsg.SUCCSE,
@@ -176,3 +194,4 @@ func GetFavFeed(c *gin.Context) {
 		})
 
 }
+

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"ginrss/Cro"
 	"ginrss/middleware"
 	"ginrss/model"
 	Redismoon "ginrss/redismoon"
@@ -19,6 +20,8 @@ func AddUser(c *gin.Context) {
 
 	code = model.CheckUser(data.Username)
 	if code == errmsg.SUCCSE {
+		//加盐哈希
+		data.Password = Cro.SaltCro(data.Password)
 		model.CreateUser(&data)
 	}
 	if code == errmsg.ERROR_USERNAME_USED {
@@ -40,14 +43,40 @@ func GetAllUsers(c *gin.Context)  {
 	c.JSON(
 		http.StatusOK, gin.H{
 			"status":  code,
-			"users":  Users,
+			"data":  Users,
 			"total" : count,
 			"message": errmsg.GetErrMsg(code),
 		},
 	)
 }
 
+func GetUserInfo(c* gin.Context){
+	id, _ := strconv.Atoi(c.Param("id"))
+	user := model.GetUserInfo(id)
+	code = errmsg.SUCCSE
+	c.JSON(
+		http.StatusOK, gin.H{
+			"status":  code,
+			"data":  user,
+			"message": errmsg.GetErrMsg(code),
+		},
+	)
 
+}
+
+func EditUserInfo(c* gin.Context){
+	id, _ := strconv.Atoi(c.Param("id"))
+	var formData model.User
+	_ = c.ShouldBindJSON(&formData)
+	model.UpdateUser(id, formData.Username, formData.Role)
+	code = errmsg.SUCCSE
+	c.JSON(
+		http.StatusOK, gin.H{
+			"status":  code,
+			"message": errmsg.GetErrMsg(code),
+		},
+	)
+}
 
 
 
@@ -79,7 +108,23 @@ func GetActiveUsers(c *gin.Context)  {
 	c.JSON(
 		http.StatusOK, gin.H{
 			"status":code,
-			"activeUsers":activeUsers,
+			"data":activeUsers,
 			"message":errmsg.GetErrMsg(code),
 		})
+}
+
+func ChangePw(c *gin.Context) {
+	id, _ := strconv.Atoi(c.Param("id"))
+	var formData model.User
+	_ = c.ShouldBindJSON(&formData)
+	//加盐哈希
+	password := Cro.SaltCro(formData.Password)
+	model.UpdatePass(id, password)
+	code = errmsg.SUCCSE
+	c.JSON(
+		http.StatusOK, gin.H{
+			"status":  code,
+			"message": errmsg.GetErrMsg(code),
+		},
+	)
 }

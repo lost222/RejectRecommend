@@ -3,6 +3,7 @@ package model
 import (
 	"bufio"
 	"fmt"
+	"ginrss/Cro"
 	"ginrss/rss"
 	"ginrss/utils"
 	"ginrss/utils/errmsg"
@@ -44,6 +45,7 @@ func InitDB()  {
 	db.DB().SetConnMaxLifetime(10)
 	db.DB().SetMaxOpenConns(100)
 	db.DB().SetConnMaxLifetime(10 * time.Second)
+
 
 	//initTestData()
 }
@@ -118,6 +120,8 @@ func initTestData() {
 			Password: "password"+userstr,
 			Role: 2,
 		}
+		//加盐哈希
+		newmember.Password = Cro.SaltCro(newmember.Password)
 		CreateUser(newmember)
 	}
 

@@ -2,6 +2,7 @@ package v1
 
 import (
 	"fmt"
+	"ginrss/ConsulClient"
 	"ginrss/middleware"
 	"ginrss/model"
 	Redismoon "ginrss/redismoon"
@@ -11,6 +12,7 @@ import (
 	"github.com/mmcdole/gofeed"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func GetUserFeeds(c *gin.Context) {
@@ -43,6 +45,20 @@ func GetUserFeeds(c *gin.Context) {
 	//更新活跃用户
 	Redismoon.SetActUser(userName)
 
+	feedname := c.Query("feedname")
+	if len(feedname) > 0{
+		var ans []model.MyFeed
+		for _, feed := range data{
+			if strings.Contains(feed.Feedname, feedname) {
+				ans = append(ans, feed)
+			}
+		}
+		data = ans
+		count = len(ans)
+	}
+
+
+
 	code = errmsg.SUCCSE
 	c.JSON(
 		http.StatusOK, gin.H{
@@ -56,7 +72,7 @@ func GetUserFeeds(c *gin.Context) {
 
 
 
-
+var cacheMissCount = 0
 func GetFeedInfo(c *gin.Context)  {
 	//以feedid为参数，获得feed的更新。
 	//如果更新在缓存中存在，则直接从缓存中获取。如果不在，则访问网络获取
@@ -90,6 +106,17 @@ func GetFeedInfo(c *gin.Context)  {
 		cc.Feed = *feed
 		//写入cache
 		cc.SaveInRedis()
+
+		//如果cache Miss 超过3次，启动推服务
+		cacheMissCount++
+		if cacheMissCount > 3{
+			//启动推服务
+			cacheMissCount = 0
+			pushIp, pushPort := ConsulClient.ConsulFindServerHTTP("PushService")
+			pushAddr := fmt.Sprintf("http://%v:%v/push", pushIp, pushPort)
+			fmt.Println("activate PushService at: ", pushAddr)
+			http.Get(pushAddr)
+		}
 	}
 	//最终将获得的XML解码为json传输
 	//修改Feed表中LatesTitle项目
@@ -98,6 +125,28 @@ func GetFeedInfo(c *gin.Context)  {
 		http.StatusOK, gin.H{
 			"status":  code,
 			"feed":  *feed,
+			"message": errmsg.GetErrMsg(code),
+		},
+	)
+
+}
+
+
+func SearFeedByname(c *gin.Context){
+	tokenClaim, _ := c.Get("tokenUser")
+	tClaim := tokenClaim.(*middleware.MyClaims)
+	userName := tClaim.Username
+
+	feedname := c.Query("feedname")
+	data , count := model.SearchFeedByname(userName, feedname)
+	//更新活跃用户
+	Redismoon.SetActUser(userName)
+	code = errmsg.SUCCSE
+	c.JSON(
+		http.StatusOK, gin.H{
+			"status":  code,
+			"feeds":  data,
+			"total" : count,
 			"message": errmsg.GetErrMsg(code),
 		},
 	)

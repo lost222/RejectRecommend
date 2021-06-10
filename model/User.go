@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"ginrss/utils/errmsg"
 	"github.com/jinzhu/gorm"
 )
@@ -113,4 +114,38 @@ func GetAllUsers() []User {
 		return nil
 	}
 	return Users
+}
+
+func GetUserInfo(id int) User{
+	var ans User
+	db.Where("ID = ?", id).First(&ans)
+	if ans.ID <=0 {
+		fmt.Println("GetUserInfo err")
+	}
+	return ans
+}
+
+//func UpdateLastTitle(feedId int, title string) {
+//	err := db.Model(&MyFeed{}).Where("ID = ?", feedId).Update("lates_title", title).Error
+//	if err !=nil{
+//		fmt.Println("UpdateLastTitle", err)
+//	}
+//}
+
+
+func UpdateUser(userid int, username string, role int){
+	err := db.Model(&User{}).Where("ID = ?", userid).Update(map[string]interface{}{
+		"username"  : username,
+		"role" : role,
+	}).Error
+	if err !=nil{
+		fmt.Println("UpdateUser", err)
+	}
+}
+
+func UpdatePass(userid int, password string){
+	err := db.Model(&User{}).Where("ID = ?", userid).Update("password", password).Error
+	if err !=nil{
+		fmt.Println("UpdateUser", err)
+	}
 }
